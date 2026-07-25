@@ -12,7 +12,11 @@ export const chat = async (req, res) => {
       });
     }
 
-    const result = await chatWithDocument(conversationId, question);
+    const result = await chatWithDocument(
+      conversationId,
+      question,
+      req.user._id,
+    );
 
     return res.json({
       success: true,

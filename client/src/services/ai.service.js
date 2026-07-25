@@ -9,7 +9,7 @@ export const summary = async (conversationId, length) => {
   return response.data;
 };
 
-export const quiz = async (conversationId, count) => {
+export const generateQuiz = async (conversationId, count) => {
   const response = await api.post("/ai/quiz", {
     conversationId,
     count,
@@ -18,7 +18,7 @@ export const quiz = async (conversationId, count) => {
   return response.data;
 };
 
-export const flashcards = async (conversationId, count) => {
+export const generateFlashcards = async (conversationId, count) => {
   const response = await api.post("/ai/flashcards", {
     conversationId,
     count,

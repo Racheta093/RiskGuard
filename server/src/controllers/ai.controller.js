@@ -9,7 +9,11 @@ export const summary = async (req, res) => {
   try {
     const { conversationId, length } = req.body;
 
-    const result = await summarizeDocument(conversationId, length);
+    const result = await summarizeDocument(
+      conversationId,
+      req.user._id,
+      length,
+    );
 
     res.status(200).json({
       success: true,
@@ -27,7 +31,7 @@ export const explain = async (req, res) => {
   try {
     const { conversationId, topic } = req.body;
 
-    const result = await explainDocument(conversationId, topic);
+    const result = await explainDocument(conversationId, req.user._id, topic);
 
     res.status(200).json({
       success: true,
@@ -45,7 +49,7 @@ export const quiz = async (req, res) => {
   try {
     const { conversationId, count } = req.body;
 
-    const result = await generateQuiz(conversationId, count);
+    const result = await generateQuiz(conversationId, req.user._id, count);
 
     res.status(200).json({
       success: true,
@@ -63,7 +67,11 @@ export const flashcards = async (req, res) => {
   try {
     const { conversationId, count } = req.body;
 
-    const result = await generateFlashcards(conversationId, count);
+    const result = await generateFlashcards(
+      conversationId,
+      req.user._id,
+      count,
+    );
 
     res.status(200).json({
       success: true,
@@ -81,7 +89,11 @@ export const viva = async (req, res) => {
   try {
     const { conversationId, count } = req.body;
 
-    const result = await generateVivaQuestions(conversationId, count);
+    const result = await generateVivaQuestions(
+      conversationId,
+      req.user._id,
+      count,
+    );
 
     res.status(200).json({
       success: true,
@@ -99,7 +111,7 @@ export const keypoints = async (req, res) => {
   try {
     const { conversationId } = req.body;
 
-    const result = await generateKeyPoints(conversationId);
+    const result = await generateKeyPoints(conversationId, req.user._id);
 
     res.status(200).json({
       success: true,

@@ -1,20 +1,17 @@
 import {
   FileText,
-  Brain,
   MessageSquare,
-  HelpCircle,
-  Layers3,
-  BookOpen,
-  GraduationCap,
   Plus,
   Trash2,
   Search,
+  LogOut,
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { getDocuments } from "../../services/document.service";
 import { useDocument } from "../../context/DocumentContext";
+import { useAuth } from "../../context/AuthContext";
 import UploadButton from "../document/UploadButton";
 import {
   createConversation,
@@ -25,8 +22,18 @@ import {
 } from "../../services/conversation.service";
 import { useConversation } from "../../context/ConversationContext";
 import { useChat } from "../../context/ChatContext";
-import { aiTools } from "../../constants/aiTools";
-import AIToolCard from "./AIToolCard";
+
+const statusStyles = {
+  COMPLETED: "bg-emerald-500/15 text-emerald-400",
+  FAILED: "bg-red-500/15 text-red-400",
+  PROCESSING: "bg-blue-500/15 text-blue-400 animate-pulse",
+};
+
+const statusLabel = {
+  COMPLETED: "Indexed",
+  FAILED: "Failed",
+  PROCESSING: "Processing",
+};
 
 const Sidebar = () => {
   const { documents, setDocuments, selectedDocument, setSelectedDocument } =
@@ -35,6 +42,7 @@ const Sidebar = () => {
   const { conversation, setConversation, conversations, setConversations } =
     useConversation();
   const { setMessages } = useChat();
+  const { user, logout } = useAuth();
 
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
@@ -45,8 +53,6 @@ const Sidebar = () => {
     const loadDocuments = async () => {
       try {
         const res = await getDocuments();
-
-        // console.log(conversations);
 
         setDocuments(res.documents);
       } catch (err) {
@@ -134,13 +140,50 @@ const Sidebar = () => {
   );
 
   return (
-    <aside className="w-90 bg-zinc-900 border-r border-zinc-800 flex flex-col">
-      <div className="p-5 border-b border-zinc-800">
+    <aside className="w-90 bg-zinc-950/40 backdrop-blur border-r border-zinc-800/80 flex flex-col">
+      {/* Brand header */}
+      <div className="h-16 border-b border-zinc-800/80 flex items-center px-5 gap-2.5 shrink-0">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-xs font-bold font-display shrink-0">
+          D
+        </div>
+        <h1 className="text-base font-semibold font-display tracking-tight text-white">
+          DocuMind
+        </h1>
+      </div>
+
+      {/* User chip */}
+      <div className="px-5 py-3 border-b border-zinc-800/80 flex items-center gap-2.5 shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-xs font-semibold shrink-0">
+          {user?.name?.[0]?.toUpperCase() ?? "U"}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-white truncate">{user?.name}</p>
+          <p className="text-[11px] text-zinc-500 truncate">{user?.email}</p>
+        </div>
+        <button
+          onClick={logout}
+          title="Log out"
+          className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-red-400 transition"
+        >
+          <LogOut size={15} />
+        </button>
+      </div>
+
+      <div className="p-5 border-b border-zinc-800/80">
         <UploadButton />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5">
-        <h2 className="text-xs uppercase text-zinc-400 mb-3">Documents</h2>
+      <div className="flex-1 overflow-y-auto p-5 min-h-0">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">
+            Documents
+          </h2>
+          {documents.length > 0 && (
+            <span className="text-[10px] text-zinc-600">
+              {documents.length} file{documents.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
 
         <div className="relative mb-4">
           <Search
@@ -153,7 +196,7 @@ const Sidebar = () => {
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-zinc-800 rounded-lg py-2 pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-violet-500"
+            className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-2 pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
           />
         </div>
 
@@ -175,42 +218,52 @@ const Sidebar = () => {
                 <button
                   onClick={() => handleSelectDocument(doc)}
                   disabled={doc.status !== "COMPLETED"}
-                  className={`w-full rounded-lg p-3 flex items-center gap-3 transition ${
+                  className={`w-full rounded-xl p-3 flex items-center gap-3 transition border ${
                     selectedDocument?._id === doc._id
-                      ? "bg-violet-600 shadow-md"
-                      : "bg-zinc-800 hover:bg-zinc-700 hover:scale-[1.02]"
+                      ? "bg-gradient-to-r from-blue-500 to-violet-600 border-blue-400/30 shadow-lg shadow-blue-900/30"
+                      : "bg-zinc-900/60 border-zinc-800/60 hover:bg-zinc-800/80 hover:border-zinc-700"
                   } ${
                     doc.status !== "COMPLETED"
                       ? "opacity-60 cursor-not-allowed"
                       : ""
                   }`}
                 >
-                  <FileText size={18} />
+                  <span
+                    className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${
+                      selectedDocument?._id === doc._id
+                        ? "bg-white/15"
+                        : "bg-blue-500/10"
+                    }`}
+                  >
+                    <FileText
+                      size={15}
+                      className={
+                        selectedDocument?._id === doc._id
+                          ? "text-white"
+                          : "text-blue-400"
+                      }
+                    />
+                  </span>
 
-                  <span className="truncate flex-1" title={doc.originalName}>
+                  <span
+                    className="truncate flex-1 text-left"
+                    title={doc.originalName}
+                  >
                     {doc.originalName}
                   </span>
 
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                      doc.status === "COMPLETED"
-                        ? "bg-green-500/20 text-green-400"
-                        : doc.status === "FAILED"
-                          ? "bg-red-500/20 text-red-400"
-                          : "bg-yellow-500/20 text-yellow-400 animate-pulse"
+                    className={`status-pill ${
+                      statusStyles[doc.status] ?? "bg-zinc-500/15 text-zinc-400"
                     }`}
                   >
-                    {doc.status === "COMPLETED"
-                      ? "Ready"
-                      : doc.status === "PROCESSING"
-                        ? "Processing"
-                        : "Failed"}
+                    {statusLabel[doc.status] ?? doc.status}
                   </span>
                 </button>
 
                 {/* Conversations */}
                 {selectedDocument?._id === doc._id && (
-                  <div className="ml-5 mt-2 border-l border-zinc-700 pl-4 py-1 space-y-1">
+                  <div className="ml-5 mt-2 border-l border-zinc-800 pl-4 py-1 space-y-1">
                     {filteredConversations.length === 0 &&
                     searchQuery.trim() !== "" ? (
                       <p className="text-sm text-zinc-500 px-3 py-2">
@@ -220,10 +273,10 @@ const Sidebar = () => {
                       filteredConversations.map((conv) => (
                         <div
                           key={conv._id}
-                          className={`group flex items-center justify-between rounded-md px-3 py-2 transition ${
+                          className={`group flex items-center justify-between rounded-lg px-3 py-2 transition ${
                             conversation?._id === conv._id
-                              ? "bg-violet-700 text-white"
-                              : "hover:bg-zinc-800 text-zinc-300"
+                              ? "bg-blue-600/90 text-white"
+                              : "hover:bg-zinc-800/70 text-zinc-300"
                           }`}
                         >
                           <button
@@ -236,7 +289,6 @@ const Sidebar = () => {
                             className="flex items-center gap-2 flex-1 text-left"
                           >
                             <MessageSquare size={14} />
-                            {/* <span className="truncate">{conv.title}</span> */}
                             {editingId === conv._id ? (
                               <input
                                 autoFocus
@@ -313,7 +365,7 @@ const Sidebar = () => {
                         setConversation(created.conversation);
                         setMessages([]);
                       }}
-                      className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-violet-400 hover:bg-zinc-800 transition"
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-blue-400 hover:bg-zinc-800/70 transition"
                     >
                       <Plus size={14} />
                       <span>New Chat</span>
@@ -326,24 +378,10 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <div className="border-t border-zinc-800 p-3 space-y-2">
-        <h2 className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">
-          AI Tools
-        </h2>
-
-        <div className="grid grid-cols-2 gap-2">
-          {aiTools.map((tool) => (
-            <AIToolCard
-              key={tool.title}
-              icon={tool.icon}
-              title={tool.title}
-              prompt={tool.prompt}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="border-t border-zinc-800 p-4 text-center">
-        <p className="text-xs text-zinc-500">DocuMind v1.0</p>
+      <div className="border-t border-zinc-800/80 p-4 text-center shrink-0">
+        <p className="text-xs text-zinc-500 font-display font-medium">
+          DocuMind v1.0
+        </p>
 
         <p className="text-[10px] text-zinc-600 mt-1">
           AI-powered PDF Learning Assistant

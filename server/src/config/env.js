@@ -19,6 +19,8 @@ const env = {
 
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 
+  JWT_SECRET: process.env.JWT_SECRET,
+  NODE_ENV: process.env.NODE_ENV || "development",
 };
 
 export default env;

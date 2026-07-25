@@ -1,10 +1,18 @@
-import { createDocument } from "../services/document/document.service.js";
-
-import { getAllDocuments } from "../services/document/document.service.js";
+import {
+  createDocument,
+  getAllDocuments,
+} from "../services/document/document.service.js";
 
 export const getDocuments = async (req, res) => {
   try {
-    const documents = await getAllDocuments();
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated. Please log in again.",
+      });
+    }
+
+    const documents = await getAllDocuments(req.user._id);
 
     res.status(200).json({
       success: true,
@@ -20,6 +28,13 @@ export const getDocuments = async (req, res) => {
 
 export const uploadDocument = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated. Please log in again.",
+      });
+    }
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -28,12 +43,12 @@ export const uploadDocument = async (req, res) => {
       });
     }
 
-    const document = await createDocument(req.file);
+    const document = await createDocument(req.file, req.user._id);
 
     return res.status(202).json({
       success: true,
 
-      message: "oaded successfully. Processing started.",
+      message: "Uploaded successfully. Processing started.",
 
       data: {
         documentId: document._id,

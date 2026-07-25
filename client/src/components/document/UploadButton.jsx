@@ -8,7 +8,7 @@ const UploadButton = () => {
 
   const handleClick = () => {
     inputRef.current?.click();
-  };
+  }; 
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -39,7 +39,7 @@ const UploadButton = () => {
 
       <button
         onClick={handleClick}
-        className="w-full bg-violet-600 hover:bg-violet-700 rounded-lg py-3 flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-xl py-3 flex items-center justify-center gap-2 font-medium shadow-lg shadow-blue-900/30 transition"
       >
         <Upload size={18} />
         Upload PDF

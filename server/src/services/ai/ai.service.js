@@ -2,8 +2,12 @@ import Chunk from "../../models/Chunk.js";
 import { getConversation } from "../conversation/conversation.service.js";
 import { generateAnswer } from "../llm/llm.service.js";
 
-export const generateFromDocument = async (conversationId, promptTemplate) => {
-  const conversation = await getConversation(conversationId);
+export const generateFromDocument = async (
+  conversationId,
+  userId,
+  promptTemplate,
+) => {
+  const conversation = await getConversation(conversationId, userId);
 
   if (!conversation) {
     throw new Error("Conversation not found.");

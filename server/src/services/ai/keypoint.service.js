@@ -1,8 +1,9 @@
 import { generateFromDocument } from "./ai.service.js";
 
-export const generateKeyPoints = async (conversationId) => {
+export const generateKeyPoints = async (conversationId, userId) => {
   return await generateFromDocument(
     conversationId,
+    userId,
 
     `Extract the most important concepts.
 

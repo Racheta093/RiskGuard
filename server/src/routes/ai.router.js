@@ -4,7 +4,7 @@ import {
   summary,
   explain,
   quiz,
-  flashcards,
+  flashcards, 
   viva,
   keypoints,
 } from "../controllers/ai.controller.js";

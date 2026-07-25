@@ -4,9 +4,10 @@ import {
   findConversationByDocument,
   getConversationsByDocument,
   updateConversationTitle,
-  deleteConversation
+  deleteConversation,
 } from "../services/conversation/conversation.service.js";
 import { getMessages } from "../services/message/message.service.js";
+import { getDocumentOwnedByUser } from "../services/document/document.service.js";
 
 export const create = async (req, res) => {
   try {
@@ -19,7 +20,20 @@ export const create = async (req, res) => {
       });
     }
 
-    const conversation = await createConversation(documentId, title);
+    const document = await getDocumentOwnedByUser(documentId, req.user._id);
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Document not found.",
+      });
+    }
+
+    const conversation = await createConversation(
+      documentId,
+      req.user._id,
+      title,
+    );
 
     res.status(201).json({
       success: true,
@@ -35,7 +49,7 @@ export const create = async (req, res) => {
 
 export const getOne = async (req, res) => {
   try {
-    const conversation = await getConversation(req.params.id);
+    const conversation = await getConversation(req.params.id, req.user._id);
 
     if (!conversation) {
       return res.status(404).json({
@@ -58,6 +72,15 @@ export const getOne = async (req, res) => {
 
 export const history = async (req, res) => {
   try {
+    const conversation = await getConversation(req.params.id, req.user._id);
+
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: "Conversation not found.",
+      });
+    }
+
     const messages = await getMessages(req.params.id, 100);
 
     res.json({
@@ -76,7 +99,10 @@ export const getByDocument = async (req, res) => {
   try {
     const { documentId } = req.params;
 
-    const conversation = await findConversationByDocument(documentId);
+    const conversation = await findConversationByDocument(
+      documentId,
+      req.user._id,
+    );
 
     if (!conversation) {
       return res.json({
@@ -101,7 +127,10 @@ export const getConversations = async (req, res) => {
   try {
     const { documentId } = req.params;
 
-    const conversations = await getConversationsByDocument(documentId);
+    const conversations = await getConversationsByDocument(
+      documentId,
+      req.user._id,
+    );
 
     return res.json({
       success: true,
@@ -127,7 +156,14 @@ export const renameConversation = async (req, res) => {
       });
     }
 
-    const conversation = await updateConversationTitle(id, title);
+    const conversation = await updateConversationTitle(id, req.user._id, title);
+
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: "Conversation not found.",
+      });
+    }
 
     return res.json({
       success: true,
@@ -142,18 +178,23 @@ export const renameConversation = async (req, res) => {
 };
 
 export const removeConversation = async (req, res) => {
-  //  console.log("DELETE conversation:", req.params.id);
   try {
-    await deleteConversation(req.params.id);
+    const deleted = await deleteConversation(req.params.id, req.user._id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Conversation not found.",
+      });
+    }
 
     res.json({
       success: true,
     });
   } catch (err) {
-    // console.error("DELETE ERROR:", err);
     res.status(500).json({
       success: false,
-      message: err.message
+      message: err.message,
     });
   }
 };

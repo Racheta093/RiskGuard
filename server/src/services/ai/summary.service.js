@@ -1,8 +1,13 @@
 import { generateFromDocument } from "./ai.service.js";
 
-export const summarizeDocument = async (conversationId, length = "short") => {
+export const summarizeDocument = async (
+  conversationId,
+  userId,
+  length = "short",
+) => {
   return await generateFromDocument(
     conversationId,
+    userId,
     `You are an expert tutor.
 
 Summarize the following document.

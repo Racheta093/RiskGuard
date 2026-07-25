@@ -4,20 +4,22 @@ import { setJobStatus } from "../queue/jobStatus.js";
 import { DOCUMENT_STATUS } from "../../utils/constants.js";
 import { uploadPDFToS3 } from "../s3/upload.service.js";
 
-export const createDocument = async (file) => {
- const { key, url } = await uploadPDFToS3(file);
+export const createDocument = async (file, userId) => {
+  const { key, url } = await uploadPDFToS3(file);
 
- const document = await Document.create({
-   originalName: file.originalname,
+  const document = await Document.create({
+    userId,
 
-   s3Key: key,
+    originalName: file.originalname,
 
-   fileUrl: url,
+    s3Key: key,
 
-   fileSize: file.size,
+    fileUrl: url,
 
-   mimeType: file.mimetype,
- });
+    fileSize: file.size,
+
+    mimeType: file.mimetype,
+  });
 
   const job = {
     documentId: document._id.toString(),
@@ -35,19 +37,6 @@ export const createDocument = async (file) => {
   return document;
 };
 
-// export const updateDocumentStatus = async (documentId, status) => {
-//   return await Document.findByIdAndUpdate(
-//     documentId,
-//     {
-//       status,
-//       processedAt: status === DOCUMENT_STATUS.COMPLETED ? new Date() : null,
-//     },
-//     {
-//       returnDocument: "after",
-//     },
-//   );
-// };
-
 export const updateDocumentStatus = async (documentId, status) => {
   const doc = await Document.findByIdAndUpdate(
     documentId,
@@ -60,13 +49,15 @@ export const updateDocumentStatus = async (documentId, status) => {
     },
   );
 
-  console.log("Updated Document:", doc);
-
   return doc;
 };
 
-export const getAllDocuments = async () => {
-  return await Document.find()
+export const getAllDocuments = async (userId) => {
+  return await Document.find({ userId })
     .sort({ createdAt: -1 })
     .select("_id originalName status createdAt");
+};
+
+export const getDocumentOwnedByUser = async (documentId, userId) => {
+  return await Document.findOne({ _id: documentId, userId });
 };

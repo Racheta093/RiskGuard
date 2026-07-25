@@ -1,6 +1,8 @@
 import MainLayout from "../../components/Layout/MainLayout";
 import ChatWindow from "../../components/Chat/ChatWindow";
 import MessageInput from "../../components/Chat/MessageInput";
+import FlashcardModal from "../../components/modals/FlashcardModal";
+import QuizModal from "../../components/modals/QuizModal";
 
 const Home = () => {
   return (
@@ -10,6 +12,9 @@ const Home = () => {
 
         <MessageInput />
       </div>
+
+      <FlashcardModal />
+      <QuizModal />
     </MainLayout>
   );
 };
