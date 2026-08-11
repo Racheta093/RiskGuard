@@ -379,7 +379,7 @@ RiskGuard/
 ### Clone Repository
 
 ```bash
-git clone https://github.com/Priti-Poddar/RiskGuard.git
+git clone https://github.com/Racheta093/RiskGuard.git
 cd RiskGuard
 ```
 
@@ -476,6 +476,6 @@ RiskGuard aims to:
 **Racheta Prasad**
 
 * GitHub: https://github.com/Racheta093
-
+* LinkedIn: www.linkedin.com/in/racheta-prasad-495526380
 ```
 ```
